@@ -1,0 +1,32 @@
+# Java & Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.m2/
+
+# Frontend & Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Uploads & Temp Evidence
+uploads/
+/uploads/*
+!/uploads/.gitkeep
+
+# IDEs & System
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.env

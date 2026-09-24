@@ -1,0 +1,11 @@
+CREATE TABLE hospitals (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    address TEXT NOT NULL,
+    phone VARCHAR(50),
+    email VARCHAR(150),
+    emergency_number VARCHAR(50),
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
