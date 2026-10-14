@@ -30,3 +30,13 @@ uploads/
 .DS_Store
 Thumbs.db
 .env
+.settings/
+.classpath
+.project
+
+# Local Database Files
+data/
+backend/data/
+*.mv.db
+*.trace.db
+
