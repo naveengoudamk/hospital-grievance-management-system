@@ -167,13 +167,43 @@ export const PublicHome: React.FC = () => {
                   Scan this exact QR anywhere on hospital premises (Reception, OPD, Pharmacy, Billing, Emergency, or Wards) to access this portal.
                 </p>
 
+                <div className="flex gap-2 mb-3">
+                  <a
+                    href={`https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(
+                      window.location.origin + '/public'
+                    )}`}
+                    download="universal-hospital-qr.png"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 rounded-xl transition-colors"
+                  >
+                    <span>Download QR</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 rounded-xl transition-colors"
+                  >
+                    <span>Print Poster</span>
+                  </button>
+                </div>
+
                 <Link
                   to="/public/report"
-                  className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 rounded-xl shadow-sm transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 rounded-xl shadow-sm transition-all hover:scale-[1.01]"
                 >
                   <FileText className="w-4 h-4" />
                   <span>Start Submission Now</span>
                 </Link>
+
+                <div className="mt-3 pt-3 border-t border-slate-100">
+                  <Link
+                    to="/public/track?ref=HGS-2026-001042&token=CARE-TRACK-2026"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-hospital-600 hover:text-hospital-700 hover:underline"
+                  >
+                    <span>✨ Test Live Grievance Tracking (Demo) &rarr;</span>
+                  </Link>
+                </div>
               </div>
             </div>
 

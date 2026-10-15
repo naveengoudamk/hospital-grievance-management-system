@@ -28,6 +28,12 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Outfit', 'Inter', 'sans-serif'],
+      },
+      boxShadow: {
+        'glow': '0 0 25px -5px rgba(2, 132, 199, 0.25)',
+        'glow-emerald': '0 0 25px -5px rgba(16, 185, 129, 0.25)',
+        'glass': '0 8px 32px 0 rgba(15, 23, 42, 0.08)',
       }
     },
   },

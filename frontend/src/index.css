@@ -29,10 +29,24 @@
 
 /* Glassmorphism and animations */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -10px rgba(15, 23, 42, 0.12);
+  border-color: rgba(2, 132, 199, 0.35);
 }
 
 .gradient-hospital {
@@ -43,11 +57,36 @@
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
+.gradient-subtle {
+  background: radial-gradient(circle at 50% 0%, rgba(224, 242, 254, 0.6) 0%, rgba(248, 250, 252, 0) 70%);
+}
+
 @keyframes pulse-subtle {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.95; transform: scale(1.02); }
+  50% { opacity: 0.92; transform: scale(1.02); }
 }
 
 .animate-pulse-subtle {
   animation: pulse-subtle 4s ease-in-out infinite;
 }
+
+/* Print styles for Grievance Passes and Universal QR Posters */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  header, footer, nav, .no-print {
+    display: none !important;
+  }
+  .print-area {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
+

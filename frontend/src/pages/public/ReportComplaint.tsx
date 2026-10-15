@@ -18,9 +18,43 @@ import {
   Building2,
   Tags,
   Search,
+  Sparkles,
 } from 'lucide-react';
 import { publicApi } from '../../api/publicApi';
 import { Category, LocationItem, PublicComplaintResponse } from '../../types';
+
+const REPORT_PRESETS = [
+  {
+    title: 'Emergency Triage Delay',
+    catHint: 'Emergency',
+    locHint: 'Emergency',
+    text: 'Patient arrived with acute clinical distress. Triage was delayed over 40 minutes due to lack of staff or shift change. Stretcher / wheelchair was unavailable upon entry.',
+  },
+  {
+    title: 'Billing Transparency Dispute',
+    catHint: 'Billing',
+    locHint: 'Billing',
+    text: 'Inpatient discharge bill contains disputed charges and undocumented pharmacy item costs. Billing counter staff refused to provide itemized breakdown voucher.',
+  },
+  {
+    title: 'Delayed Nurse Response',
+    catHint: 'Nursing',
+    locHint: 'Ward',
+    text: 'Bedside emergency call bell rang for over 25 minutes without response. Delayed assistance for IV medication infusion and postoperative patient mobility.',
+  },
+  {
+    title: 'Sanitation / Dirty Restroom',
+    catHint: 'Hygiene',
+    locHint: 'Ward',
+    text: 'Shared patient washrooms were unsanitary and missed multiple scheduled cleaning rotations. Hand hygiene and soap dispensers were empty.',
+  },
+  {
+    title: 'Pharmacy Medicine Shortage',
+    catHint: 'Pharmacy',
+    locHint: 'Pharmacy',
+    text: 'Essential prescribed medication was reported out of stock at central dispensary with no clinical guidance or alternate substitute dispensed.',
+  },
+];
 
 export const ReportComplaint: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -30,6 +64,7 @@ export const ReportComplaint: React.FC = () => {
   // Form fields
   const [categoryId, setCategoryId] = useState<number | ''>('');
   const [locationId, setLocationId] = useState<number | ''>('');
+  const [bedOrRoom, setBedOrRoom] = useState('');
   const [description, setDescription] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [complainantName, setComplainantName] = useState('');
@@ -50,6 +85,18 @@ export const ReportComplaint: React.FC = () => {
   const [successData, setSuccessData] = useState<PublicComplaintResponse | null>(null);
   const [copiedToken, setCopiedToken] = useState(false);
   const [copiedRef, setCopiedRef] = useState(false);
+
+  const applyPreset = (preset: typeof REPORT_PRESETS[0]) => {
+    // Find category matching hint
+    const foundCat = categories.find((c) => c.name.toLowerCase().includes(preset.catHint.toLowerCase()));
+    if (foundCat) setCategoryId(foundCat.id);
+
+    // Find location matching hint
+    const foundLoc = locations.find((l) => l.name.toLowerCase().includes(preset.locHint.toLowerCase()));
+    if (foundLoc) setLocationId(foundLoc.id);
+
+    setDescription(preset.text);
+  };
 
   useEffect(() => {
     const loadMasterData = async () => {
@@ -126,10 +173,14 @@ export const ReportComplaint: React.FC = () => {
 
     setSubmitting(true);
     try {
+      const finalDescription = bedOrRoom.trim()
+        ? `${description.trim()}\n\n[Location Specifics: Room / Bed / Counter ${bedOrRoom.trim()}]`
+        : description.trim();
+
       const payload = {
         categoryId: Number(categoryId),
         locationId: locationId ? Number(locationId) : undefined,
-        description: description.trim(),
+        description: finalDescription,
         isAnonymous,
         complainantName: isAnonymous ? undefined : complainantName.trim(),
         complainantPhone: isAnonymous ? undefined : complainantPhone.trim(),
@@ -275,6 +326,26 @@ export const ReportComplaint: React.FC = () => {
         </p>
       </div>
 
+      {/* Quick Issue Templates */}
+      <div className="bg-gradient-to-r from-hospital-50/80 via-white to-slate-50 rounded-2xl border border-hospital-200/80 p-4 shadow-xs mb-6">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-hospital-800 uppercase tracking-wider mb-2">
+          <Sparkles className="w-3.5 h-3.5 text-hospital-600" />
+          <span>Quick Issue Presets (Click to Auto-fill Category & Details):</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {REPORT_PRESETS.map((preset, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => applyPreset(preset)}
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white hover:bg-hospital-50 text-slate-700 hover:text-hospital-800 border border-slate-200/90 hover:border-hospital-300 transition-all shadow-2xs"
+            >
+              + {preset.title}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {errorMsg && (
         <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
@@ -285,7 +356,7 @@ export const ReportComplaint: React.FC = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-6">
         
         {/* Row 1: Category & Location */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -299,7 +370,7 @@ export const ReportComplaint: React.FC = () => {
               value={categoryId}
               onChange={(e) => setCategoryId(Number(e.target.value))}
               required
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-hospital-500 focus:bg-white transition-all"
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-hospital-500 focus:bg-white transition-all"
             >
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -309,7 +380,7 @@ export const ReportComplaint: React.FC = () => {
             </select>
           </div>
 
-          {/* Location Area */}
+          {/* Location Area & Bed/Room */}
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <Building2 className="w-3.5 h-3.5 text-hospital-500" />
@@ -318,7 +389,7 @@ export const ReportComplaint: React.FC = () => {
             <select
               value={locationId}
               onChange={(e) => setLocationId(e.target.value ? Number(e.target.value) : '')}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-hospital-500 focus:bg-white transition-all"
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-hospital-500 focus:bg-white transition-all"
             >
               <option value="">-- General / Not Location-Specific --</option>
               {locations.map((loc) => (
@@ -327,6 +398,14 @@ export const ReportComplaint: React.FC = () => {
                 </option>
               ))}
             </select>
+
+            <input
+              type="text"
+              value={bedOrRoom}
+              onChange={(e) => setBedOrRoom(e.target.value)}
+              placeholder="Bed / Room / Counter # (Optional)"
+              className="mt-2 w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-hospital-500 focus:bg-white transition-all"
+            />
           </div>
         </div>
 
