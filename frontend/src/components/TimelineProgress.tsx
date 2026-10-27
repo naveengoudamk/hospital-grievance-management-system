@@ -36,15 +36,26 @@ export const TimelineProgress: React.FC<TimelineProgressProps> = ({ steps }) => 
             {/* Step Body */}
             <div className={`p-4 rounded-xl border transition-all ${
               step.current 
-                ? 'bg-hospital-50/70 border-hospital-200 shadow-sm' 
+                ? 'bg-hospital-50/70 border-hospital-200 shadow-sm ring-1 ring-hospital-200' 
                 : step.completed
-                ? 'bg-white border-slate-200'
+                ? 'bg-white border-slate-200 hover:border-slate-300'
                 : 'bg-slate-50/50 border-slate-200/60 opacity-60'
             }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
-                <h4 className={`text-sm font-bold ${step.current ? 'text-hospital-900' : 'text-slate-800'}`}>
-                  {step.title}
-                </h4>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                    step.completed 
+                      ? 'bg-emerald-100 text-emerald-800' 
+                      : step.current 
+                      ? 'bg-hospital-100 text-hospital-800' 
+                      : 'bg-slate-200 text-slate-600'
+                  }`}>
+                    Stage {idx + 1}
+                  </span>
+                  <h4 className={`text-sm font-bold ${step.current ? 'text-hospital-900' : 'text-slate-800'}`}>
+                    {step.title}
+                  </h4>
+                </div>
                 {step.timestamp && (
                   <span className="text-xs text-slate-500 font-medium">
                     {new Date(step.timestamp).toLocaleDateString('en-US', {

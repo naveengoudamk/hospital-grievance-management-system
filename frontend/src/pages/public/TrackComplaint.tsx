@@ -40,6 +40,7 @@ export const TrackComplaint: React.FC = () => {
   const [data, setData] = useState<TrackComplaintResponse | null>(null);
   const [copiedRef, setCopiedRef] = useState(false);
   const [copiedToken, setCopiedToken] = useState(false);
+  const [copiedShareLink, setCopiedShareLink] = useState(false);
 
   // Resolution feedback state
   const [rating, setRating] = useState<number>(5);
@@ -87,6 +88,14 @@ export const TrackComplaint: React.FC = () => {
       setCopiedToken(true);
       setTimeout(() => setCopiedToken(false), 2000);
     }
+  };
+
+  const handleShareLink = () => {
+    if (!data) return;
+    const url = `${window.location.origin}/track?ref=${encodeURIComponent(data.complaintReference)}&token=${encodeURIComponent(token.trim())}`;
+    navigator.clipboard.writeText(url);
+    setCopiedShareLink(true);
+    setTimeout(() => setCopiedShareLink(false), 2500);
   };
 
   useEffect(() => {
@@ -239,7 +248,25 @@ export const TrackComplaint: React.FC = () => {
                   </button>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <button
+                  type="button"
+                  onClick={handleShareLink}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-colors"
+                  title="Copy direct tracking link to share or bookmark"
+                >
+                  {copiedShareLink ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-700">Link Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Copy Tracking Link</span>
+                    </>
+                  )}
+                </button>
                 <StatusBadge status={data.currentStatus} size="lg" />
               </div>
             </div>
