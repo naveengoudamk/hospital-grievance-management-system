@@ -39,4 +39,16 @@ class TokenGeneratorTest {
         assertFalse(tokenGenerator.matches("WRONGTOKEN123456", hash));
         assertFalse(tokenGenerator.matches(null, hash));
     }
+
+    @Test
+    @DisplayName("Should correctly validate token character set and length")
+    void testTokenValidation() {
+        String token = tokenGenerator.generateTrackingToken(16);
+        assertTrue(tokenGenerator.isValidTrackingToken(token));
+        assertTrue(tokenGenerator.isValidTrackingToken("ABCDEFGH23456789"));
+        assertFalse(tokenGenerator.isValidTrackingToken("SHORT"));
+        assertFalse(tokenGenerator.isValidTrackingToken("INVALID_TOKEN_WITH_SPECIAL_CHARS!"));
+        assertFalse(tokenGenerator.isValidTrackingToken(null));
+        assertFalse(tokenGenerator.isValidTrackingToken(""));
+    }
 }

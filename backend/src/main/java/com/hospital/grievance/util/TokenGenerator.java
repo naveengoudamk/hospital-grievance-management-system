@@ -26,6 +26,14 @@ public class TokenGenerator {
         return generateTrackingToken(16);
     }
 
+    public boolean isValidTrackingToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return false;
+        }
+        String clean = token.trim().toUpperCase();
+        return clean.matches("^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8,32}$");
+    }
+
     public String hashToken(String token) {
         if (token == null) {
             return null;
