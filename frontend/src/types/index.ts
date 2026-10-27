@@ -223,6 +223,9 @@ export interface TrackComplaintResponse {
   submittedAt: string;
   incidentDate?: string;
   resolvedAt?: string;
+  satisfactionRating?: number;
+  satisfactionFeedback?: string;
+  feedbackSubmittedAt?: string;
   attachmentCount: number;
   timeline: TrackingTimelineStep[];
 }

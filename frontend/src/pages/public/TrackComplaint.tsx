@@ -44,7 +44,28 @@ export const TrackComplaint: React.FC = () => {
 
   // Resolution feedback state
   const [rating, setRating] = useState<number>(5);
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [feedbackComment, setFeedbackComment] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const [feedbackSuccessMsg, setFeedbackSuccessMsg] = useState<string | null>(null);
+
+  const handleSubmitFeedback = async () => {
+    if (!data || !token.trim()) return;
+    setSubmittingFeedback(true);
+    try {
+      const updated = await publicApi.submitFeedback({
+        complaintReference: data.complaintReference,
+        trackingToken: token.trim(),
+        rating,
+        feedback: feedbackComment.trim() || undefined,
+      });
+      setData(updated);
+      setFeedbackSuccessMsg('Thank you! Your feedback has been recorded in the patient satisfaction ledger.');
+    } catch (err: any) {
+      setErrorMsg(err.response?.data?.message || 'Failed to submit feedback. Please try again.');
+    } finally {
+      setSubmittingFeedback(false);
+    }
+  };
 
   const queryRecord = async (targetRef: string, targetToken: string) => {
     setErrorMsg(null);
@@ -323,7 +344,7 @@ export const TrackComplaint: React.FC = () => {
           </div>
 
           {/* Resolution Satisfaction Rating (if resolved) */}
-          {data.currentStatus === 'RESOLVED' && (
+          {(data.currentStatus === 'RESOLVED' || data.currentStatus === 'CLOSED') && (
             <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-3xl p-6 sm:p-8">
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-700 flex-shrink-0">
@@ -337,34 +358,92 @@ export const TrackComplaint: React.FC = () => {
                     </p>
                   </div>
 
-                  {!feedbackSubmitted ? (
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                      <div className="flex items-center gap-1.5">
+                  {data.satisfactionRating || feedbackSuccessMsg ? (
+                    <div className="p-4 bg-white/90 rounded-2xl border border-emerald-200 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 text-amber-400">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`w-4 h-4 ${star <= (data.satisfactionRating || rating) ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs font-bold text-slate-800">
+                          {data.satisfactionRating || rating} out of 5 stars
+                        </span>
+                      </div>
+                      {(data.satisfactionFeedback || feedbackComment) && (
+                        <p className="text-xs text-slate-600 italic">
+                          "{data.satisfactionFeedback || feedbackComment}"
+                        </p>
+                      )}
+                      <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 font-semibold pt-1">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Verified patient feedback recorded in hospital quality assurance metrics.</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <button
                             key={star}
                             type="button"
                             onClick={() => setRating(star)}
                             className="p-1 text-amber-400 hover:scale-110 transition-transform"
+                            title={`Rate ${star} star${star > 1 ? 's' : ''}`}
                           >
                             <Star
-                              className={`w-5 h-5 ${star <= rating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
+                              className={`w-6 h-6 ${star <= rating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
                             />
                           </button>
                         ))}
+                        <span className="text-xs font-bold text-slate-700 ml-2">
+                          {rating === 5 ? 'Excellent' : rating === 4 ? 'Good' : rating === 3 ? 'Average' : rating === 2 ? 'Poor' : 'Very Poor'}
+                        </span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setFeedbackSubmitted(true)}
-                        className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition-colors"
-                      >
-                        Submit Feedback
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="p-3 bg-white/80 rounded-xl border border-emerald-200 text-xs text-emerald-800 font-semibold flex items-center gap-2">
-                      <Check className="w-4 h-4 text-emerald-600" />
-                      <span>Thank you! Your feedback has been recorded in the patient satisfaction ledger.</span>
+
+                      <div className="flex flex-wrap gap-1.5">
+                        {['Prompt Action', 'Respectful Staff', 'Clear Communication', 'Fair Outcome', 'Helpful Desk'].map((tag) => (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => setFeedbackComment((prev) => prev ? `${prev}, ${tag}` : tag)}
+                            className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-emerald-100/70 hover:bg-emerald-200/70 text-emerald-800 border border-emerald-200 transition-colors"
+                          >
+                            +{tag}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="space-y-2">
+                        <textarea
+                          rows={2}
+                          value={feedbackComment}
+                          onChange={(e) => setFeedbackComment(e.target.value)}
+                          placeholder="Optional comments or suggestions for the patient care committee..."
+                          className="w-full text-xs p-3 rounded-xl border border-emerald-200 bg-white/80 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleSubmitFeedback}
+                          disabled={submittingFeedback}
+                          className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-colors disabled:opacity-60"
+                        >
+                          {submittingFeedback ? (
+                            <>
+                              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              <span>Submitting Feedback...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Check className="w-4 h-4" />
+                              <span>Submit Rating & Feedback</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

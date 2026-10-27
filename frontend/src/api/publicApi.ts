@@ -64,4 +64,17 @@ export const publicApi = {
     });
     return res.data.data;
   },
+
+  submitFeedback: async (feedbackData: {
+    complaintReference: string;
+    trackingToken: string;
+    rating: number;
+    feedback?: string;
+  }): Promise<TrackComplaintResponse> => {
+    const res = await apiClient.post<ApiResponse<TrackComplaintResponse>>(
+      '/api/public/complaints/feedback',
+      feedbackData
+    );
+    return res.data.data;
+  },
 };
