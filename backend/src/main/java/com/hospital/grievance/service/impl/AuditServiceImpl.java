@@ -89,16 +89,37 @@ public class AuditServiceImpl implements AuditService {
         return PagedResponse.fromPage(page.map(mapper::toAuditLogResponse));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.Map<String, Long> getAuditActionSummary() {
+        java.util.List<Object[]> results = auditLogRepository.countByActionGroup();
+        java.util.Map<String, Long> summary = new java.util.LinkedHashMap<>();
+        for (Object[] row : results) {
+            if (row != null && row.length >= 2 && row[0] != null) {
+                summary.put(row[0].toString(), (Long) row[1]);
+            }
+        }
+        return summary;
+    }
+
     private String resolveClientIp() {
         try {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attributes != null) {
                 HttpServletRequest request = attributes.getRequest();
                 String xfHeader = request.getHeader("X-Forwarded-For");
-                if (xfHeader == null || xfHeader.isEmpty() || "unknown".equalsIgnoreCase(xfHeader)) {
-                    return request.getRemoteAddr();
+                if (xfHeader != null && !xfHeader.isEmpty() && !"unknown".equalsIgnoreCase(xfHeader)) {
+                    return xfHeader.split(",")[0].trim();
                 }
-                return xfHeader.split(",")[0].trim();
+                String realIp = request.getHeader("X-Real-IP");
+                if (realIp != null && !realIp.isEmpty() && !"unknown".equalsIgnoreCase(realIp)) {
+                    return realIp.trim();
+                }
+                String cfIp = request.getHeader("CF-Connecting-IP");
+                if (cfIp != null && !cfIp.isEmpty() && !"unknown".equalsIgnoreCase(cfIp)) {
+                    return cfIp.trim();
+                }
+                return request.getRemoteAddr();
             }
         } catch (Exception ignored) {
         }

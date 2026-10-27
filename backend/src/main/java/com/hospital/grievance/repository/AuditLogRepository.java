@@ -31,4 +31,7 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
             @Param("endDate") LocalDateTime endDate,
             Pageable pageable
     );
+
+    @Query("SELECT a.action, COUNT(a) FROM AuditLog a GROUP BY a.action")
+    java.util.List<Object[]> countByActionGroup();
 }

@@ -22,4 +22,6 @@ public interface AuditService {
             LocalDateTime endDate,
             Pageable pageable
     );
+
+    java.util.Map<String, Long> getAuditActionSummary();
 }

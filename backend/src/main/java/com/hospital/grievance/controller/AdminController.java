@@ -237,6 +237,12 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.ok(logs));
     }
 
+    @GetMapping("/audit-logs/summary")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Long>>> getAuditSummary() {
+        java.util.Map<String, Long> summary = auditService.getAuditActionSummary();
+        return ResponseEntity.ok(ApiResponse.ok(summary));
+    }
+
     // --- UNIVERSAL QR CODE MANAGEMENT ---
     @GetMapping("/qr")
     public ResponseEntity<ApiResponse<QrConfigResponse>> getActiveQr() {
