@@ -201,6 +201,11 @@ export const adminApi = {
     return res.data.data;
   },
 
+  getAuditSummary: async (): Promise<Record<string, number>> => {
+    const res = await apiClient.get<ApiResponse<Record<string, number>>>('/api/admin/audit-logs/summary');
+    return res.data.data;
+  },
+
   getQrConfig: async (): Promise<QrConfig> => {
     const res = await apiClient.get<ApiResponse<QrConfig>>('/api/admin/qr');
     return res.data.data;

@@ -7,6 +7,7 @@ import { LoadingSpinner } from '../../components/LoadingSpinner';
 export const AdminAuditLogs: React.FC = () => {
   const [logsData, setLogsData] = useState<PagedResponse<AuditLog> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState<Record<string, number>>({});
 
   // Filters
   const [action, setAction] = useState<string>('');
@@ -17,14 +18,18 @@ export const AdminAuditLogs: React.FC = () => {
   const loadLogs = async () => {
     setLoading(true);
     try {
-      const data = await adminApi.getAuditLogs({
-        action: action || undefined,
-        username: username.trim() || undefined,
-        entityType: entityType.trim() || undefined,
-        page,
-        size: 20,
-      });
+      const [data, summaryData] = await Promise.all([
+        adminApi.getAuditLogs({
+          action: action || undefined,
+          username: username.trim() || undefined,
+          entityType: entityType.trim() || undefined,
+          page,
+          size: 20,
+        }),
+        adminApi.getAuditSummary().catch(() => ({})),
+      ]);
       setLogsData(data);
+      if (summaryData) setSummary(summaryData);
     } catch (err) {
       console.error('Failed to load audit logs:', err);
     } finally {
@@ -49,17 +54,76 @@ export const AdminAuditLogs: React.FC = () => {
     setPage(0);
   };
 
+  const getActionBadgeColor = (actionName: string) => {
+    switch (actionName) {
+      case 'LOGIN_FAILED':
+      case 'USER_DISABLED':
+        return 'bg-rose-100 text-rose-800 border-rose-200';
+      case 'LOGIN_SUCCESS':
+      case 'USER_ENABLED':
+      case 'FEEDBACK_SUBMITTED':
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      case 'COMPLAINT_SUBMITTED':
+      case 'COMPLAINT_ASSIGNED':
+        return 'bg-sky-100 text-sky-800 border-sky-200';
+      case 'STATUS_CHANGED':
+      case 'PRIORITY_CHANGED':
+        return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'INVESTIGATION_STARTED':
+      case 'INVESTIGATION_UPDATED':
+      case 'INVESTIGATION_COMPLETED':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'DATA_EXPORTED':
+      case 'QR_GENERATED':
+        return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+      default:
+        return 'bg-slate-100 text-slate-800 border-slate-200';
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-          System Audit Trail & Compliance Log
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-          Immutable records of user authentications, case assignments, status changes, and administrative actions.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            System Audit Trail & Compliance Log
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Immutable records of user authentications, case assignments, status changes, and administrative actions.
+          </p>
+        </div>
       </div>
+
+      {/* Summary KPI Chips */}
+      {Object.keys(summary).length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+            <span className="text-[10px] uppercase font-bold text-slate-400">Grievances Logged</span>
+            <span className="block text-lg font-black text-slate-900 mt-0.5">
+              {summary['COMPLAINT_SUBMITTED'] || 0}
+            </span>
+          </div>
+          <div className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+            <span className="text-[10px] uppercase font-bold text-slate-400">Status Transitions</span>
+            <span className="block text-lg font-black text-amber-600 mt-0.5">
+              {summary['STATUS_CHANGED'] || 0}
+            </span>
+          </div>
+          <div className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+            <span className="text-[10px] uppercase font-bold text-slate-400">Investigations</span>
+            <span className="block text-lg font-black text-purple-600 mt-0.5">
+              {(summary['INVESTIGATION_STARTED'] || 0) + (summary['INVESTIGATION_UPDATED'] || 0) + (summary['INVESTIGATION_COMPLETED'] || 0)}
+            </span>
+          </div>
+          <div className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+            <span className="text-[10px] uppercase font-bold text-slate-400">Patient Feedbacks</span>
+            <span className="block text-lg font-black text-emerald-600 mt-0.5">
+              {summary['FEEDBACK_SUBMITTED'] || 0}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Filter Toolbar */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
@@ -92,6 +156,7 @@ export const AdminAuditLogs: React.FC = () => {
             <option value="PRIORITY_CHANGED">PRIORITY CHANGED</option>
             <option value="INVESTIGATION_UPDATED">INVESTIGATION UPDATED</option>
             <option value="INVESTIGATION_COMPLETED">INVESTIGATION COMPLETED</option>
+            <option value="FEEDBACK_SUBMITTED">FEEDBACK SUBMITTED</option>
             <option value="USER_CREATED">USER CREATED</option>
             <option value="USER_DISABLED">USER DISABLED</option>
             <option value="QR_GENERATED">QR GENERATED</option>
@@ -147,7 +212,7 @@ export const AdminAuditLogs: React.FC = () => {
                         {log.username || 'ANONYMOUS'}
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 text-slate-800 font-bold text-[10px]">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded border font-bold text-[10px] ${getActionBadgeColor(log.action)}`}>
                           {log.action}
                         </span>
                       </td>

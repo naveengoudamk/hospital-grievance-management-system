@@ -33,7 +33,8 @@ export type AuditAction =
   | 'CATEGORY_UPDATED'
   | 'LOCATION_CREATED'
   | 'LOCATION_UPDATED'
-  | 'DATA_EXPORTED';
+  | 'DATA_EXPORTED'
+  | 'FEEDBACK_SUBMITTED';
 
 export interface ApiResponse<T> {
   success: boolean;
