@@ -157,4 +157,32 @@ public class PublicComplaintServiceImpl implements PublicComplaintService {
 
         return complaintMapper.toTrackComplaintResponse(complaint);
     }
+
+    @Override
+    @Transactional
+    public TrackComplaintResponse submitFeedback(com.hospital.grievance.dto.request.ComplaintFeedbackRequest request) {
+        String ref = request.getComplaintReference().trim().toUpperCase();
+        Complaint complaint = complaintRepository.findByComplaintReference(ref)
+                .orElseThrow(() -> new ResourceNotFoundException("No grievance record found with the provided Reference Number and Tracking Token."));
+
+        if (!tokenGenerator.matches(request.getTrackingToken().trim(), complaint.getTrackingTokenHash())) {
+            log.warn("Invalid tracking token attempt for feedback submission on complaint: {}", ref);
+            throw new ResourceNotFoundException("No grievance record found with the provided Reference Number and Tracking Token.");
+        }
+
+        complaint.setSatisfactionRating(request.getRating());
+        complaint.setSatisfactionFeedback(request.getFeedback() != null ? request.getFeedback().trim() : null);
+        complaint.setFeedbackSubmittedAt(LocalDateTime.now());
+        Complaint updated = complaintRepository.save(complaint);
+
+        auditService.recordAction(
+                com.hospital.grievance.enums.AuditAction.FEEDBACK_SUBMITTED,
+                "COMPLAINT",
+                updated.getComplaintReference(),
+                null,
+                "Patient submitted satisfaction rating: " + request.getRating() + "/5 stars"
+        );
+
+        return complaintMapper.toTrackComplaintResponse(updated);
+    }
 }

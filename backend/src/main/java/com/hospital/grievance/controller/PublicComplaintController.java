@@ -64,6 +64,14 @@ public class PublicComplaintController {
         return ResponseEntity.ok(ApiResponse.ok(response, "Tracking details retrieved"));
     }
 
+    @PostMapping("/complaints/feedback")
+    public ResponseEntity<ApiResponse<TrackComplaintResponse>> submitFeedback(
+            @Valid @RequestBody com.hospital.grievance.dto.request.ComplaintFeedbackRequest request
+    ) {
+        TrackComplaintResponse response = publicComplaintService.submitFeedback(request);
+        return ResponseEntity.ok(ApiResponse.ok(response, "Thank you! Your feedback has been recorded"));
+    }
+
     @GetMapping("/config")
     public ResponseEntity<ApiResponse<Map<String, String>>> getPublicConfig() {
         Map<String, String> config = masterDataService.getPublicConfig();

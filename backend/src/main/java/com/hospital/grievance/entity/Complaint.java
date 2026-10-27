@@ -85,6 +85,15 @@ public class Complaint {
     @Column(name = "resolved_at")
     private LocalDateTime resolvedAt;
 
+    @Column(name = "satisfaction_rating")
+    private Integer satisfactionRating;
+
+    @Column(name = "satisfaction_feedback", length = 1000)
+    private String satisfactionFeedback;
+
+    @Column(name = "feedback_submitted_at")
+    private LocalDateTime feedbackSubmittedAt;
+
     @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ComplaintAttachment> attachments = new ArrayList<>();

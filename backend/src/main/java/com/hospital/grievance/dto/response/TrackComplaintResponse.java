@@ -23,6 +23,9 @@ public class TrackComplaintResponse {
     private LocalDateTime submittedAt;
     private LocalDateTime incidentDate;
     private LocalDateTime resolvedAt;
+    private Integer satisfactionRating;
+    private String satisfactionFeedback;
+    private LocalDateTime feedbackSubmittedAt;
     private int attachmentCount;
     private List<TrackingTimelineStep> timeline;
 

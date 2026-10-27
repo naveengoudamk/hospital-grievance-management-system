@@ -13,4 +13,6 @@ public interface PublicComplaintService {
     PublicComplaintResponse submitComplaint(PublicComplaintRequest request, List<MultipartFile> files);
 
     TrackComplaintResponse trackComplaint(TrackComplaintRequest request);
+
+    TrackComplaintResponse submitFeedback(com.hospital.grievance.dto.request.ComplaintFeedbackRequest request);
 }

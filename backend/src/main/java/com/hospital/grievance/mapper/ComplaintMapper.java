@@ -299,6 +299,9 @@ public class ComplaintMapper {
                 .submittedAt(complaint.getSubmittedAt())
                 .incidentDate(complaint.getIncidentDate())
                 .resolvedAt(complaint.getResolvedAt())
+                .satisfactionRating(complaint.getSatisfactionRating())
+                .satisfactionFeedback(complaint.getSatisfactionFeedback())
+                .feedbackSubmittedAt(complaint.getFeedbackSubmittedAt())
                 .attachmentCount(complaint.getAttachments() != null ? complaint.getAttachments().size() : 0)
                 .timeline(steps)
                 .build();
