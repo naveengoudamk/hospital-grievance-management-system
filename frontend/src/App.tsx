@@ -33,6 +33,8 @@ import { CommitteeDashboard } from './pages/committee/CommitteeDashboard';
 import { CommitteeComplaintsList } from './pages/committee/CommitteeComplaintsList';
 import { CommitteeComplaintDetail } from './pages/committee/CommitteeComplaintDetail';
 
+import { CommandPalette } from './components/CommandPalette';
+
 // Error Page
 import { NotFound } from './pages/NotFound';
 
@@ -60,6 +62,7 @@ export const App: React.FC = () => {
     <ThemeProvider>
       <AuthProvider>
       <BrowserRouter>
+        <CommandPalette />
         <Routes>
           {/* Default Redirect to Universal Public QR Home */}
           <Route path="/" element={<Navigate to="/public" replace />} />
