@@ -50,57 +50,76 @@ public class ExportServiceImpl implements ExportService {
         );
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
-            // CSV Header
-            writer.writeNext(new String[]{
-                    "Complaint Reference",
-                    "Category",
-                    "Location",
-                    "Priority",
-                    "Status",
-                    "Is Anonymous",
-                    "Complainant Name",
-                    "Complainant Phone",
-                    "Complainant Email",
-                    "Submitted Date",
-                    "Incident Date",
-                    "Resolved Date",
-                    "Description Snippet"
-            });
+        try {
+            // Write UTF-8 BOM for Excel compatibility
+            out.write(new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
 
-            for (Complaint c : page.getContent()) {
-                String snippet = c.getDescription() != null
-                        ? c.getDescription().replace("\n", " ").replace("\r", " ")
-                        : "";
-                if (snippet.length() > 200) {
-                    snippet = snippet.substring(0, 197) + "...";
+            try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
+                // CSV Header
+                writer.writeNext(new String[]{
+                        "Complaint Reference",
+                        "Category",
+                        "Location",
+                        "Priority",
+                        "Status",
+                        "Is Anonymous",
+                        "Complainant Name",
+                        "Complainant Phone",
+                        "Complainant Email",
+                        "Submitted Date",
+                        "Incident Date",
+                        "Resolved Date",
+                        "Turnaround Time",
+                        "Satisfaction Rating",
+                        "Satisfaction Feedback",
+                        "Description Snippet"
+                });
+
+                for (Complaint c : page.getContent()) {
+                    String snippet = c.getDescription() != null
+                            ? c.getDescription().replace("\n", " ").replace("\r", " ")
+                            : "";
+                    if (snippet.length() > 200) {
+                        snippet = snippet.substring(0, 197) + "...";
+                    }
+
+                    String turnaround = "Pending";
+                    if (c.getResolvedAt() != null && c.getSubmittedAt() != null) {
+                        long hours = java.time.Duration.between(c.getSubmittedAt(), c.getResolvedAt()).toHours();
+                        turnaround = hours + " hrs";
+                    }
+
+                    String rating = c.getSatisfactionRating() != null ? c.getSatisfactionRating() + " / 5" : "Unrated";
+                    String feedback = c.getSatisfactionFeedback() != null ? c.getSatisfactionFeedback().replace("\n", " ") : "";
+
+                    writer.writeNext(new String[]{
+                            c.getComplaintReference(),
+                            c.getCategory() != null ? c.getCategory().getName() : "",
+                            c.getLocation() != null ? c.getLocation().getName() : "General",
+                            c.getPriority() != null ? c.getPriority().name() : "",
+                            c.getStatus() != null ? c.getStatus().name() : "",
+                            String.valueOf(c.isAnonymous()),
+                            c.isAnonymous() ? "ANONYMOUS" : (c.getComplainantName() != null ? c.getComplainantName() : ""),
+                            c.isAnonymous() ? "N/A" : (c.getComplainantPhone() != null ? c.getComplainantPhone() : ""),
+                            c.isAnonymous() ? "N/A" : (c.getComplainantEmail() != null ? c.getComplainantEmail() : ""),
+                            c.getSubmittedAt() != null ? c.getSubmittedAt().format(DATE_FORMATTER) : "",
+                            c.getIncidentDate() != null ? c.getIncidentDate().format(DATE_FORMATTER) : "",
+                            c.getResolvedAt() != null ? c.getResolvedAt().format(DATE_FORMATTER) : "",
+                            turnaround,
+                            rating,
+                            feedback,
+                            snippet
+                    });
                 }
 
-                writer.writeNext(new String[]{
-                        c.getComplaintReference(),
-                        c.getCategory() != null ? c.getCategory().getName() : "",
-                        c.getLocation() != null ? c.getLocation().getName() : "General",
-                        c.getPriority() != null ? c.getPriority().name() : "",
-                        c.getStatus() != null ? c.getStatus().name() : "",
-                        String.valueOf(c.isAnonymous()),
-                        c.isAnonymous() ? "ANONYMOUS" : (c.getComplainantName() != null ? c.getComplainantName() : ""),
-                        c.isAnonymous() ? "N/A" : (c.getComplainantPhone() != null ? c.getComplainantPhone() : ""),
-                        c.isAnonymous() ? "N/A" : (c.getComplainantEmail() != null ? c.getComplainantEmail() : ""),
-                        c.getSubmittedAt() != null ? c.getSubmittedAt().format(DATE_FORMATTER) : "",
-                        c.getIncidentDate() != null ? c.getIncidentDate().format(DATE_FORMATTER) : "",
-                        c.getResolvedAt() != null ? c.getResolvedAt().format(DATE_FORMATTER) : "",
-                        snippet
-                });
+                auditService.recordAction(
+                        AuditAction.DATA_EXPORTED,
+                        "COMPLAINTS_CSV",
+                        "EXPORT",
+                        null,
+                        "Exported " + page.getTotalElements() + " complaints to CSV with satisfaction metrics"
+                );
             }
-
-            auditService.recordAction(
-                    AuditAction.DATA_EXPORTED,
-                    "COMPLAINTS_CSV",
-                    "EXPORT",
-                    null,
-                    "Exported " + page.getTotalElements() + " complaints to CSV"
-            );
-
         } catch (Exception e) {
             log.error("Error generating complaints CSV export: {}", e.getMessage(), e);
             throw new RuntimeException("Could not generate CSV export: " + e.getMessage(), e);
