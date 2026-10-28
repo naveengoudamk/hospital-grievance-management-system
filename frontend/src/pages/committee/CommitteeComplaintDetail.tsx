@@ -274,10 +274,29 @@ export const CommitteeComplaintDetail: React.FC = () => {
             </div>
 
             <div className="space-y-4 text-xs">
+              {/* Quick Investigation Template Prompts */}
               <div>
-                <label className="block font-bold text-slate-700 uppercase mb-1.5">
-                  1. Investigation Summary & Scope <span className="text-rose-500">*</span>
+                <label className="block font-bold text-slate-700 uppercase mb-1.5 flex items-center justify-between">
+                  <span>1. Investigation Summary & Scope <span className="text-rose-500">*</span></span>
+                  <span className="text-[10px] text-teal-600 font-semibold normal-case">Quick Templates:</span>
                 </label>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {[
+                    { label: 'Clinical Delay', text: 'Examined patient arrival logbook and duty handover notes. Interviewed triage resident and on-duty nursing superintendent.' },
+                    { label: 'Billing Dispute', text: 'Audited pharmacy dispensing receipts and hospital billing system records against approved state health insurance tariffs.' },
+                    { label: 'Facility Sanitation', text: 'Conducted unannounced physical inspection of ward sanitization logs, housekeeping roster, and biomedical waste bins.' },
+                    { label: 'Staff Conduct', text: 'Obtained written statements from attending healthcare attendants and reviewed departmental surveillance footage.' },
+                  ].map((tpl) => (
+                    <button
+                      key={tpl.label}
+                      type="button"
+                      onClick={() => setSummary((prev) => prev ? `${prev}\n${tpl.text}` : tpl.text)}
+                      className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 transition-colors"
+                    >
+                      +{tpl.label}
+                    </button>
+                  ))}
+                </div>
                 <textarea
                   rows={3}
                   value={summary}
@@ -301,9 +320,27 @@ export const CommitteeComplaintDetail: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 uppercase mb-1.5">
-                  3. Corrective & Administrative Action Taken
+                <label className="block font-bold text-slate-700 uppercase mb-1.5 flex items-center justify-between">
+                  <span>3. Corrective & Administrative Action Taken</span>
+                  <span className="text-[10px] text-teal-600 font-semibold normal-case">Quick Actions:</span>
                 </label>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {[
+                    { label: 'Patient Apology & Counseling', text: 'Patient care advocate met with family to tender formal institutional apology and provide clarification.' },
+                    { label: 'Billing Credit/Adjustment', text: 'Instructed finance desk to reverse erroneous medication line items and issue revised invoice receipt.' },
+                    { label: 'Staff Re-training', text: 'Mandated departmental empathy and emergency triage compliance refresher seminar for nursing staff.' },
+                    { label: 'Equipment Escalation', text: 'Scheduled urgent biomedical engineering inspection and logged replacement request for faulty unit.' },
+                  ].map((tpl) => (
+                    <button
+                      key={tpl.label}
+                      type="button"
+                      onClick={() => setActionTaken((prev) => prev ? `${prev}\n${tpl.text}` : tpl.text)}
+                      className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 transition-colors"
+                    >
+                      +{tpl.label}
+                    </button>
+                  ))}
+                </div>
                 <textarea
                   rows={3}
                   value={actionTaken}
