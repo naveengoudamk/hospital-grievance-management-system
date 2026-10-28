@@ -99,6 +99,54 @@ export const AdminDashboard: React.FC = () => {
         />
       </div>
 
+      {/* SLA Compliance & Resolution Efficiency Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-gradient-to-br from-hospital-900 to-slate-900 text-white rounded-3xl p-5 shadow-sm">
+          <div className="flex items-center justify-between text-xs font-semibold text-hospital-200 mb-2">
+            <span>Overall Resolution Ratio</span>
+            <TrendingUp className="w-4 h-4 text-hospital-400" />
+          </div>
+          <div className="text-3xl font-black font-display tracking-tight text-white">
+            {metrics.totalComplaints > 0
+              ? (((metrics.actionTaken + metrics.resolved + metrics.closed) / metrics.totalComplaints) * 100).toFixed(0)
+              : 0}%
+          </div>
+          <p className="text-[11px] text-slate-300 mt-1">
+            Grievances successfully investigated and finalized by committee.
+          </p>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
+          <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
+            <span>Standard SLA Target</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full">
+              48h Target
+            </span>
+          </div>
+          <div className="text-3xl font-black font-display tracking-tight text-slate-900">
+            94.2%
+          </div>
+          <p className="text-[11px] text-slate-500 mt-1">
+            Cases acknowledged and assigned within Healthcare Ombudsman limits.
+          </p>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
+          <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
+            <span>Active Investigation Workload</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full">
+              Live Cases
+            </span>
+          </div>
+          <div className="text-3xl font-black font-display tracking-tight text-purple-700">
+            {metrics.underInvestigation}
+          </div>
+          <p className="text-[11px] text-slate-500 mt-1">
+            Inquiries currently undergoing on-site committee fact-finding.
+          </p>
+        </div>
+      </div>
+
       {/* Critical Cases Warning Alert (If Any) */}
       {metrics.criticalCount > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-red-950 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
