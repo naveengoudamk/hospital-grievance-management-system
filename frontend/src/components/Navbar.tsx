@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, QrCode, FileText, Search, PhoneCall, Lock, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Shield, QrCode, FileText, Search, PhoneCall, Lock, Menu, X, ArrowUpRight, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
   const { isAuthenticated, isAdmin } = useAuth();
+  const { actualTheme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -60,6 +62,15 @@ export const Navbar: React.FC = () => {
 
           {/* Right Action: Internal Portal Link & Mobile Toggle */}
           <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              title={`Switch to ${actualTheme === 'light' ? 'dark' : 'light'} mode`}
+              aria-label="Toggle display theme"
+            >
+              {actualTheme === 'light' ? <Moon className="w-4 h-4 text-slate-600" /> : <Sun className="w-4 h-4 text-amber-400" />}
+            </button>
             {isAuthenticated ? (
               <Link
                 to={isAdmin ? '/admin/dashboard' : '/committee/dashboard'}
