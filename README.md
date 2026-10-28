@@ -373,7 +373,19 @@ hospital-grievance-management-system/
 
 ---
 
+## 🚀 Milestone v1.2.0 Release Highlights (October 2026)
+
+- **Patient Satisfaction Rating & Feedback Ledger:** Resolved grievances now allow patients to submit verified 1-5 star ratings and feedback tags (`POST /api/public/complaints/feedback`), recorded permanently in quality assurance audit trails.
+- **Global Command Palette (`Cmd+K` / `Ctrl+K`):** Instant search and rapid keyboard navigation between public triage, tracking, hospital emergency contacts, and administrative modules.
+- **Adaptive Theme System (`ThemeProvider`):** Zero-flicker dark, light, and system-preference theme synchronization with persistent storage.
+- **Comprehensive Audit Trail Analytics:** Real-time action KPI summary endpoint (`GET /api/admin/audit-logs/summary`) and multi-hop proxy client IP resolution (`X-Forwarded-For`, `X-Real-IP`, `CF-Connecting-IP`).
+- **Excel-Optimized Grievance CSV Export:** Added UTF-8 Byte Order Mark (BOM), resolution turnaround calculation, and satisfaction scores for Microsoft Excel and BI pipelines.
+- **Clinical Investigation & Corrective Presets:** One-touch inquiry templates and administrative action presets for hospital inquiry committees.
+
+---
+
 ## 👥 Authors & License
 
 Developed as a modern, full-stack enterprise healthcare reference system.  
 Licensed under the **MIT License**.
+
